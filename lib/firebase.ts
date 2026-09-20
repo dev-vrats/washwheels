@@ -159,9 +159,16 @@ export async function signOut(): Promise<void> {
 export { onAuthStateChanged, type User }
 
 // ─── Role helpers ─────────────────────────────────────────────────────────────
+const withTimeout = <T>(promise: Promise<T>, ms: number = 8000): Promise<T> => {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms))
+  ])
+}
+
 export async function getUserRole(email: string): Promise<Role> {
   try {
-    const snap = await getDoc(doc(db, 'roles', email.toLowerCase()))
+    const snap = await withTimeout(getDoc(doc(db, 'roles', email.toLowerCase())))
     if (snap.exists()) {
       return (snap.data()?.role as Role) ?? 'customer'
     }
@@ -173,16 +180,20 @@ export async function getUserRole(email: string): Promise<Role> {
 
 // ─── User profile helpers ─────────────────────────────────────────────────────
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
-  const snap = await getDoc(doc(db, 'users', uid))
-  if (snap.exists()) return { uid, ...snap.data() } as UserProfile
-  return null
+  try {
+    const snap = await withTimeout(getDoc(doc(db, 'users', uid)))
+    if (snap.exists()) return { uid, ...snap.data() } as UserProfile
+    return null
+  } catch {
+    return null
+  }
 }
 
 export async function saveUserProfile(
   uid: string,
   data: Omit<Partial<UserProfile>, 'createdAt'> & { createdAt?: unknown }
 ): Promise<void> {
-  await setDoc(doc(db, 'users', uid), data as DocumentData, { merge: true })
+  await withTimeout(setDoc(doc(db, 'users', uid), data as DocumentData, { merge: true }), 8000)
 }
 
 // ─── Washer helpers ────────────────────────────────────────────────────────────
