@@ -369,9 +369,9 @@ function AuthScreen({ onAuth }: { onAuth: (user: User) => void }) {
     setError('')
     try {
       const user = await signInWithGoogle()
-      onAuth(user)
+      await onAuth(user)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Google sign-in failed')
+      setError(e instanceof Error ? e.message.replace('Firebase: ', '').replace(/\(auth.*\)\.?/, '') : 'Google sign-in failed')
     } finally {
       setLoading(false)
     }
@@ -387,7 +387,7 @@ function AuthScreen({ onAuth }: { onAuth: (user: User) => void }) {
       } else {
         user = await signInEmail(email, password)
       }
-      onAuth(user)
+      await onAuth(user)
     } catch (e) {
       setError(e instanceof Error ? e.message.replace('Firebase: ', '').replace(/\(auth.*\)\.?/, '') : 'Auth failed')
     } finally {
