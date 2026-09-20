@@ -692,6 +692,15 @@ function LocationScreen({
 
   return (
     <div className="min-h-[100dvh] flex flex-col items-center justify-center px-4 relative" style={{ zIndex: 1 }}>
+      <button
+        onClick={() => auth.signOut()}
+        className="absolute top-8 right-4 md:right-8 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium z-10"
+        style={{ border: '1px solid rgba(192,57,43,0.2)', background: 'rgba(192,57,43,0.06)', color: '#e05252' }}
+      >
+        <LogOut size={14} />
+        Sign out
+      </button>
+
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
@@ -874,6 +883,15 @@ function AddressDetailsScreen({
       className="min-h-[100dvh] flex flex-col px-4 pb-8 relative overflow-y-auto sheet-scroll"
       style={{ zIndex: 1, paddingTop: 'max(32px, env(safe-area-inset-top))' }}
     >
+      <button
+        onClick={() => auth.signOut()}
+        className="absolute top-8 right-4 md:right-8 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium z-10"
+        style={{ border: '1px solid rgba(192,57,43,0.2)', background: 'rgba(192,57,43,0.06)', color: '#e05252' }}
+      >
+        <LogOut size={14} />
+        Sign out
+      </button>
+
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
