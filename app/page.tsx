@@ -3327,6 +3327,31 @@ function AdminCatalog({ addToast }: { addToast: (msg: string, type?: ToastType) 
     addToast('Add-on deleted', 'info')
   }
 
+  const handleAutoFill = async () => {
+    setSavingPkg(true)
+    try {
+      const defaultPkgs = [
+        { name: 'Quick Wash', price: 299, durationMins: 15, description: 'Fast exterior foam wash and dry.', features: ['Exterior foam wash', 'Tyre cleaning', 'Microfiber dry'], active: true, order: 0 },
+        { name: 'Standard Wash', price: 499, durationMins: 30, description: 'Exterior wash plus interior vacuuming.', features: ['Exterior foam wash', 'Interior vacuum', 'Dashboard wipe', 'Tyre dressing'], active: true, order: 1 },
+        { name: 'Deep Clean', price: 899, durationMins: 60, description: 'Complete interior and exterior detailing.', features: ['Premium foam wash', 'Deep interior vacuum', 'Seat stain removal', 'Wax polishing'], active: true, order: 2 }
+      ]
+      const defaultAddons = [
+        { name: 'Wax Polish', price: 149, active: true },
+        { name: 'Engine Bay Clean', price: 199, active: true },
+        { name: 'Air Freshener', price: 49, active: true }
+      ]
+      
+      for (const p of defaultPkgs) await savePackage(p)
+      for (const a of defaultAddons) await saveAddon(a)
+      
+      addToast('Catalog auto-filled successfully!', 'success')
+    } catch {
+      addToast('Failed to auto-fill', 'error')
+    } finally {
+      setSavingPkg(false)
+    }
+  }
+
   return (
     <div className="px-4 md:px-8 pb-8">
       {/* Packages */}
@@ -3344,9 +3369,17 @@ function AdminCatalog({ addToast }: { addToast: (msg: string, type?: ToastType) 
       </div>
 
       {packages.length === 0 ? (
-        <div className="glass rounded-2xl p-8 text-center mb-6">
-          <Sparkles size={28} color="#D1D1D1" strokeWidth={1.5} className="mx-auto mb-3" />
-          <p className="text-silver-grain text-sm">No packages yet. Add your first package.</p>
+        <div className="glass rounded-2xl p-8 text-center mb-6 flex flex-col items-center">
+          <Sparkles size={28} color="#D1D1D1" strokeWidth={1.5} className="mb-3" />
+          <p className="text-silver-grain text-sm mb-4">No packages yet. Add your first package.</p>
+          <motion.button
+            onClick={handleAutoFill}
+            disabled={savingPkg}
+            whileTap={{ scale: 0.95 }}
+            className="btn-primary px-4 py-2 text-sm"
+          >
+            {savingPkg ? 'Adding...' : 'Auto-fill Standard Catalog'}
+          </motion.button>
         </div>
       ) : (
         <div className="flex flex-col gap-3 mb-6">
