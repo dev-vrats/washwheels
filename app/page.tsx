@@ -1214,8 +1214,6 @@ function CustomerHome({
         addonsSnapshot,
         total,
         status: 'searching',
-        washerId: undefined,
-        washerName: undefined,
       })
 
       // Notify washers
@@ -3671,13 +3669,18 @@ export default function App() {
 
   // Auth listener
   useEffect(() => {
+    let firstFire = true
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setScreen('auth')
         setCurrentUser(null)
         setProfile(null)
+        firstFire = false
         return
       }
+      // Keep showing loading spinner while we resolve role/profile
+      if (firstFire) setScreen('loading')
+      firstFire = false
       setCurrentUser(user)
 
       // Get role

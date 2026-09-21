@@ -270,10 +270,10 @@ export function subscribeAllAddons(cb: (addons: Addon[]) => void): () => void {
 export async function savePackage(pkg: Omit<Package, 'id'> & { id?: string }): Promise<string> {
   if (pkg.id) {
     const { id, ...rest } = pkg
-    await setDoc(doc(db, 'packages', id), rest)
+    await withTimeout(setDoc(doc(db, 'packages', id), rest))
     return id
   }
-  const ref = await addDoc(collection(db, 'packages'), pkg)
+  const ref = await withTimeout(addDoc(collection(db, 'packages'), pkg))
   return ref.id
 }
 
@@ -284,10 +284,10 @@ export async function deletePackage(id: string): Promise<void> {
 export async function saveAddon(addon: Omit<Addon, 'id'> & { id?: string }): Promise<string> {
   if (addon.id) {
     const { id, ...rest } = addon
-    await setDoc(doc(db, 'addons', id), rest)
+    await withTimeout(setDoc(doc(db, 'addons', id), rest))
     return id
   }
-  const ref = await addDoc(collection(db, 'addons'), addon)
+  const ref = await withTimeout(addDoc(collection(db, 'addons'), addon))
   return ref.id
 }
 
@@ -297,14 +297,14 @@ export async function deleteAddon(id: string): Promise<void> {
 
 // ─── Booking helpers ──────────────────────────────────────────────────────────
 export async function createBooking(
-  data: Omit<Booking, 'id' | 'createdAt' | 'searchingAt'>,
+  data: Omit<Booking, 'id' | 'createdAt' | 'searchingAt' | 'washerId' | 'washerName'>,
 ): Promise<string> {
-  const ref = await addDoc(collection(db, 'bookings'), {
+  const ref = await withTimeout(addDoc(collection(db, 'bookings'), {
     ...data,
     status: 'searching',
     searchingAt: serverTimestamp(),
     createdAt: serverTimestamp(),
-  })
+  }))
   return ref.id
 }
 
