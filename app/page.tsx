@@ -30,6 +30,8 @@ import React, {
 } from 'react'
 import dynamic from 'next/dynamic'
 import { motion, AnimatePresence, useMotionValue, useTransform, LayoutGroup } from 'framer-motion'
+
+const GlyphPortal = dynamic(() => import('@/components/ui/glyph-portal'), { ssr: false })
 import {
   Car,
   MapPin,
@@ -1237,89 +1239,159 @@ function CustomerHome({
   }
 
   return (
-    <div
-      className="pb-[120px] px-4"
-      style={{ paddingTop: 'max(24px, env(safe-area-inset-top))' }}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <p className="text-silver-grain text-sm">Good day,</p>
-          <h2 className="text-xl font-bold text-white">{profile.name.split(' ')[0]} 👋</h2>
-        </div>
-        <button
-          onClick={onChangeAddress}
-          className="glass rounded-xl px-3 py-2 flex items-center gap-2 text-sm text-silver-grain"
-          style={{ border: 'none', cursor: 'pointer' }}
-        >
-          <MapPin size={14} strokeWidth={1.5} color="#FED71A" />
-          <span className="max-w-[120px] truncate text-xs">{profile.address.text.split(',')[0]}</span>
-        </button>
-      </div>
+    <div className="pb-[120px]" style={{ paddingTop: 0 }}>
+      {/* ── GlyphPortal Hero ─────────────────────────────────────────── */}
+      <GlyphPortal
+        word="WASHWHEELS"
+        fontFamily='"Arial Black", "Arial Bold", sans-serif'
+        fontWeight={900}
+        scrollLength={1.8}
+        interactive={true}
+        enterLabel="Book a wash"
+        style={{
+          '--gp-paper': '#000000',
+          '--gp-ink': '#FED71A',
+          '--gp-field': '#000000',
+          '--gp-foreground': '#ffffff',
+        } as React.CSSProperties}
+        background={
+          <div style={{
+            position: 'absolute', inset: 0,
+            transform: 'scale(var(--gp-field-scale,1))',
+            background: 'radial-gradient(ellipse at 50% 60%, rgba(254,215,26,0.18) 0%, transparent 60%), radial-gradient(ellipse at 20% 20%, rgba(254,215,26,0.08) 0%, transparent 40%), linear-gradient(160deg,#0a0a0a 0%,#111111 50%,#000000 100%)',
+          }} />
+        }
+        front={
+          <>
+            {/* Top bar */}
+            <div style={{
+              position: 'absolute',
+              top: 'max(18px,env(safe-area-inset-top))',
+              left: 0, right: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '0 clamp(16px,5vw,40px)',
+            }}>
+              <div>
+                <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Good day,</p>
+                <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#fff' }}>{profile.name.split(' ')[0]} 👋</p>
+              </div>
+              <button
+                onClick={onChangeAddress}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  background: 'rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.14)',
+                  borderRadius: 20, padding: '6px 12px',
+                  cursor: 'pointer', color: '#fff', fontSize: 11,
+                }}
+              >
+                <span style={{ color: '#FED71A' }}>📍</span>
+                <span style={{ maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {profile.address.text.split(',')[0]}
+                </span>
+              </button>
+            </div>
 
-      {/* Car info bento */}
-      <div className="glass rounded-2xl p-4 mb-6 flex items-center gap-4">
-        <div
-          className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: 'rgba(254,215,26,0.12)' }}
-        >
-          <Car size={22} color="#FED71A" strokeWidth={1.5} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-white font-semibold truncate">{profile.car.name}</p>
-          <p className="text-silver-grain text-sm">{profile.car.plate}</p>
-        </div>
-        <div className="text-right shrink-0">
-          <p className="text-xs text-silver-grain">Address</p>
-          <p className="text-xs text-white truncate max-w-[100px]">
-            {profile.address.details || profile.address.text.split(',')[0]}
-          </p>
-        </div>
-      </div>
+            {/* Car badge */}
+            <div style={{
+              position: 'absolute',
+              top: 'calc(var(--gp-word-top, 35%) - 56px)',
+              left: '50%', transform: 'translateX(-50%)',
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: 'rgba(254,215,26,0.12)',
+              border: '1px solid rgba(254,215,26,0.25)',
+              borderRadius: 24, padding: '6px 16px',
+              backdropFilter: 'blur(16px)',
+              whiteSpace: 'nowrap',
+            }}>
+              <span style={{ fontSize: 14 }}>🚗</span>
+              <span style={{ color: '#FED71A', fontWeight: 600, fontSize: 13 }}>{profile.car.name}</span>
+              <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 11 }}>· {profile.car.plate}</span>
+            </div>
 
-      {/* Packages */}
-      <h3 className="text-lg font-bold text-white mb-3">Choose a package</h3>
-      {loadingPkgs ? (
-        <div className="flex flex-col gap-3">
-          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 w-full rounded-2xl" />)}
-        </div>
-      ) : packages.length === 0 ? (
-        <div className="glass rounded-2xl p-6 text-center">
-          <p className="text-silver-grain text-sm">No packages available right now. Check back soon.</p>
-        </div>
-      ) : (
-        <LayoutGroup>
-          <div className="flex flex-col gap-3">
-            {packages.map((pkg) => (
-              <PackageCard
-                key={pkg.id}
-                pkg={pkg}
-                selected={selectedPkg?.id === pkg.id}
-                onSelect={() => { setSelectedPkg(pkg); vibrate() }}
-              />
-            ))}
+            {/* Tagline below wordmark */}
+            <p style={{
+              position: 'absolute',
+              top: 'calc(var(--gp-word-bottom, 65%) + 16px)',
+              left: 0, right: 0,
+              textAlign: 'center', margin: 0,
+              fontSize: 'clamp(12px,3vw,15px)',
+              color: 'rgba(255,255,255,0.5)',
+              letterSpacing: '0.04em',
+            }}>
+              15-minute doorstep car wash · Lucknow
+            </p>
+
+            {/* Scroll hint */}
+            <span style={{
+              position: 'absolute', bottom: '7%',
+              left: 0, right: 0, textAlign: 'center',
+              fontSize: 11, color: 'rgba(255,255,255,0.3)',
+              letterSpacing: '0.05em',
+            }}>
+              Scroll to book ↓
+            </span>
+          </>
+        }
+      >
+        {/* ── Content revealed after scroll-through ─────────────────── */}
+        <div style={{ paddingTop: 0 }}>
+          {/* Header inside content */}
+          <div className="flex items-center justify-between mb-6 px-4" style={{ paddingTop: 'max(24px,env(safe-area-inset-top))' }}>
+            <h3 className="text-lg font-bold text-white">Choose a package</h3>
+            <div className="flex items-center gap-2 glass rounded-xl px-3 py-2 text-sm text-silver-grain" style={{ border: 'none' }}>
+              <Car size={14} strokeWidth={1.5} color="#FED71A" />
+              <span className="text-xs">{profile.car.name} · {profile.car.plate}</span>
+            </div>
           </div>
-        </LayoutGroup>
-      )}
 
-      {/* Add-ons */}
-      {addons.length > 0 && selectedPkg && (
-        <div className="mt-6">
-          <h3 className="text-base font-semibold text-white mb-3">Add-ons</h3>
-          <div className="flex flex-wrap gap-2">
-            {addons.map((a) => (
-              <AddonChip
-                key={a.id}
-                addon={a}
-                selected={selectedAddons.has(a.id)}
-                onToggle={() => toggleAddon(a.id)}
-              />
-            ))}
+          <div className="px-4">
+            {/* Packages */}
+            {loadingPkgs ? (
+              <div className="flex flex-col gap-3">
+                {[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 w-full rounded-2xl" />)}
+              </div>
+            ) : packages.length === 0 ? (
+              <div className="glass rounded-2xl p-6 text-center">
+                <p className="text-silver-grain text-sm">No packages available right now. Check back soon.</p>
+              </div>
+            ) : (
+              <LayoutGroup>
+                <div className="flex flex-col gap-3">
+                  {packages.map((pkg) => (
+                    <PackageCard
+                      key={pkg.id}
+                      pkg={pkg}
+                      selected={selectedPkg?.id === pkg.id}
+                      onSelect={() => { setSelectedPkg(pkg); vibrate() }}
+                    />
+                  ))}
+                </div>
+              </LayoutGroup>
+            )}
+
+            {/* Add-ons */}
+            {addons.length > 0 && selectedPkg && (
+              <div className="mt-6">
+                <h3 className="text-base font-semibold text-white mb-3">Add-ons</h3>
+                <div className="flex flex-wrap gap-2">
+                  {addons.map((a) => (
+                    <AddonChip
+                      key={a.id}
+                      addon={a}
+                      selected={selectedAddons.has(a.id)}
+                      onToggle={() => toggleAddon(a.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </GlyphPortal>
 
-      {/* Sticky summary bar */}
+      {/* ── Sticky booking summary bar ─────────────────────────────── */}
       <AnimatePresence>
         {selectedPkg && (
           <motion.div
